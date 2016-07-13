@@ -12,8 +12,8 @@ private let listLayoutCountOfColumns = 1
 private let gridLayoutCountOfColumns = 3
 
 public enum CollectionViewLayoutState {
-    case ListLayoutState
-    case GridLayoutState
+    case listLayoutState
+    case gridLayoutState
 }
 
 public class BaseLayout: UICollectionViewLayout {
@@ -37,7 +37,7 @@ public class BaseLayout: UICollectionViewLayout {
   
     public init(staticCellHeight: CGFloat, nextLayoutStaticCellHeight: CGFloat, layoutState: CollectionViewLayoutState) {
         self.staticCellHeight = staticCellHeight
-        self.numberOfColumns = (layoutState == .ListLayoutState) ? listLayoutCountOfColumns : gridLayoutCountOfColumns
+        self.numberOfColumns = (layoutState == .listLayoutState) ? listLayoutCountOfColumns : gridLayoutCountOfColumns
         self.layoutState = layoutState
         self.nextLayoutStaticCellHeight = nextLayoutStaticCellHeight
         
@@ -50,8 +50,8 @@ public class BaseLayout: UICollectionViewLayout {
     
     // MARK: - UICollectionViewLayout
   
-    override public func prepareLayout() {
-        super.prepareLayout()
+    override public func prepare() {
+        super.prepare()
         
         baseLayoutAttributes = [BaseLayoutAttributes]()
         
@@ -63,16 +63,16 @@ public class BaseLayout: UICollectionViewLayout {
             xOffsets.append(CGFloat(column) * columnWidth)
         }
         var column = 0
-        var yOffset = [CGFloat](count: numberOfColumns, repeatedValue: contentHeight)
-        for item in 0 ..< collectionView!.numberOfItemsInSection(0) {
-            let indexPath = NSIndexPath(forItem: item, inSection: 0)
+        var yOffset = [CGFloat](repeating: contentHeight, count: numberOfColumns)
+        for item in 0 ..< collectionView!.numberOfItems(inSection: 0) {
+            let indexPath = IndexPath(item: item, section: 0)
             let height = cellPadding + staticCellHeight
             let frame = CGRect(x: xOffsets[column], y: yOffset[column], width: columnWidth, height: height)
-            let insetFrame = CGRectInset(frame, cellPadding, cellPadding)
-            let attributes = BaseLayoutAttributes(forCellWithIndexPath: indexPath)
+            let insetFrame = frame.insetBy(dx: cellPadding, dy: cellPadding)
+            let attributes = BaseLayoutAttributes(forCellWith: indexPath)
             attributes.frame = insetFrame
             baseLayoutAttributes.append(attributes)
-            contentHeight = max(contentHeight, CGRectGetMaxY(frame))
+            contentHeight = max(contentHeight, frame.maxY)
             yOffset[column] = yOffset[column] + height
             column = column == (numberOfColumns - 1) ? 0 : column + 1
         }
@@ -82,10 +82,10 @@ public class BaseLayout: UICollectionViewLayout {
         return CGSize(width: contentWidth, height: contentHeight)
     }
     
-    override public func layoutAttributesForElementsInRect(rect: CGRect) -> [UICollectionViewLayoutAttributes]? {
+    override public func layoutAttributesForElements(in rect: CGRect) -> [UICollectionViewLayoutAttributes]? {
         var layoutAttributes = [UICollectionViewLayoutAttributes]()
         for attributes in baseLayoutAttributes {
-            if CGRectIntersectsRect(attributes.frame, rect) {
+            if attributes.frame.intersects(rect) {
                 layoutAttributes.append(attributes)
             }
         }
@@ -93,8 +93,8 @@ public class BaseLayout: UICollectionViewLayout {
         return layoutAttributes
     }
     
-    override public func layoutAttributesForItemAtIndexPath(indexPath: NSIndexPath) -> UICollectionViewLayoutAttributes? {
-        return baseLayoutAttributes[indexPath.row]
+    override public func layoutAttributesForItem(at indexPath: IndexPath) -> UICollectionViewLayoutAttributes? {
+        return baseLayoutAttributes[(indexPath as NSIndexPath).row]
     }
     
     override public class func layoutAttributesClass() -> AnyClass {
@@ -102,14 +102,14 @@ public class BaseLayout: UICollectionViewLayout {
     }
     
     // Fix bug with content offset
-    override public func targetContentOffsetForProposedContentOffset(proposedContentOffset: CGPoint) -> CGPoint {
-        let previousContentOffsetPoint = previousContentOffset?.CGPointValue()
-        let superContentOffset = super.targetContentOffsetForProposedContentOffset(proposedContentOffset)
+    override public func targetContentOffset(forProposedContentOffset proposedContentOffset: CGPoint) -> CGPoint {
+        let previousContentOffsetPoint = previousContentOffset?.cgPointValue()
+        let superContentOffset = super.targetContentOffset(forProposedContentOffset: proposedContentOffset)
         if let previousContentOffsetPoint = previousContentOffsetPoint {
             if previousContentOffsetPoint.y == 0 {
                 return previousContentOffsetPoint
             }
-            if layoutState == CollectionViewLayoutState.ListLayoutState {
+            if layoutState == CollectionViewLayoutState.listLayoutState {
                 let offsetY = ceil(previousContentOffsetPoint.y + (staticCellHeight * previousContentOffsetPoint.y / nextLayoutStaticCellHeight) + cellPadding)
                 return CGPoint(x: superContentOffset.x, y: offsetY)
             } else {
@@ -122,10 +122,10 @@ public class BaseLayout: UICollectionViewLayout {
         return superContentOffset
     }
     
-    override public func prepareForTransitionFromLayout(oldLayout: UICollectionViewLayout) {
-        previousContentOffset = NSValue(CGPoint:collectionView!.contentOffset)
+    override public func prepareForTransition(from oldLayout: UICollectionViewLayout) {
+        previousContentOffset = NSValue(cgPoint:collectionView!.contentOffset)
         
-        return super.prepareForTransitionFromLayout(oldLayout)
+        return super.prepareForTransition(from: oldLayout)
     }
     
     override public func finalizeLayoutTransition() {

@@ -12,16 +12,16 @@ private let finishTransitionValue = 1.0
 
 public class TransitionManager {
     
-    private var duration: NSTimeInterval
+    private var duration: TimeInterval
     private var collectionView: UICollectionView
     private var destinationLayout: UICollectionViewLayout
     private var layoutState: CollectionViewLayoutState
     private var transitionLayout: TransitionLayout!
     private var updater: CADisplayLink!
-    private var start: NSTimeInterval!
+    private var start: TimeInterval!
     
     // MARK: - Lifecycle
-    public init(duration: NSTimeInterval, collectionView: UICollectionView, destinationLayout: UICollectionViewLayout, layoutState: CollectionViewLayoutState) {
+    public init(duration: TimeInterval, collectionView: UICollectionView, destinationLayout: UICollectionViewLayout, layoutState: CollectionViewLayoutState) {
         self.collectionView = collectionView
         self.destinationLayout = destinationLayout
         self.layoutState = layoutState
@@ -30,11 +30,11 @@ public class TransitionManager {
     
     // MARK: - Public methods
     public func startInteractiveTransition() {
-        UIApplication.sharedApplication().beginIgnoringInteractionEvents()
-        transitionLayout = collectionView.startInteractiveTransitionToCollectionViewLayout(destinationLayout, completion: { success, finish in
+        UIApplication.shared().beginIgnoringInteractionEvents()
+        transitionLayout = collectionView.startInteractiveTransition(to: destinationLayout, completion: { success, finish in
             if success && finish {
                 self.collectionView.reloadData()
-                UIApplication.sharedApplication().endIgnoringInteractionEvents()
+                UIApplication.shared().endIgnoringInteractionEvents()
             }
         }) as! TransitionLayout
         transitionLayout.layoutState = layoutState
@@ -46,7 +46,7 @@ public class TransitionManager {
         start = CACurrentMediaTime()
         updater = CADisplayLink(target: self, selector: #selector(updateTransitionProgress))
         updater.frameInterval = 1
-        updater.addToRunLoop(NSRunLoop.currentRunLoop(), forMode: NSRunLoopCommonModes)
+        updater.add(to: RunLoop.current, forMode: RunLoopMode.commonModes)
     }
     
     dynamic func updateTransitionProgress() {

@@ -13,9 +13,9 @@ public class TransitionLayout: UICollectionViewTransitionLayout {
     var layoutState: CollectionViewLayoutState?
     
     // MARK: - UICollectionViewLayout
-    override public func layoutAttributesForElementsInRect(rect: CGRect) -> [UICollectionViewLayoutAttributes]? {
-        let currentAttributes = super.layoutAttributesForElementsInRect(rect)!
-        let nextAttributes = nextLayout.layoutAttributesForElementsInRect(rect)
+    override public func layoutAttributesForElements(in rect: CGRect) -> [UICollectionViewLayoutAttributes]? {
+        let currentAttributes = super.layoutAttributesForElements(in: rect)!
+        let nextAttributes = nextLayout.layoutAttributesForElements(in: rect)
         for index in 0..<currentAttributes.count {
             if let currentLayoutAttributes = currentAttributes[index] as? BaseLayoutAttributes {
                 currentLayoutAttributes.transitionProgress = transitionProgress
@@ -33,14 +33,14 @@ public class TransitionLayout: UICollectionViewTransitionLayout {
         return currentAttributes
     }
     
-    override public func layoutAttributesForItemAtIndexPath(indexPath: NSIndexPath) -> UICollectionViewLayoutAttributes? {
-        let attributes = super.layoutAttributesForItemAtIndexPath(indexPath)
+    override public func layoutAttributesForItem(at indexPath: IndexPath) -> UICollectionViewLayoutAttributes? {
+        let attributes = super.layoutAttributesForItem(at: indexPath)
         if let layoutAttributes = attributes as? BaseLayoutAttributes {
             layoutAttributes.transitionProgress = transitionProgress
             if let layoutState = layoutState {
                 layoutAttributes.layoutState = layoutState
             }
-            if let nextLayoutAttributes = nextLayout.layoutAttributesForItemAtIndexPath(indexPath) as? BaseLayoutAttributes {
+            if let nextLayoutAttributes = nextLayout.layoutAttributesForItem(at: indexPath) as? BaseLayoutAttributes {
                     layoutAttributes.nextLayoutCellFrame = nextLayoutAttributes.frame
             }
         }

@@ -20,7 +20,7 @@ private let itemsCount: Int = 6
 
 public class RotationButton: UIButton {
     
-    @IBInspectable var lineColor: UIColor = .greenColor()
+    @IBInspectable var lineColor: UIColor = .green()
     
     private let lineLayer1 = CAShapeLayer()
     private let lineLayer2 = CAShapeLayer()
@@ -39,9 +39,9 @@ public class RotationButton: UIButton {
         return lineLayers
     }()
     
-    public var animationDuration: NSTimeInterval = 0.25 //default value
+    public var animationDuration: TimeInterval = 0.25 //default value
     
-    override public var selected: Bool {
+    override public var isSelected: Bool {
         didSet {
             animateRotation()
         }
@@ -56,16 +56,16 @@ public class RotationButton: UIButton {
     }
     
     func animateRotation() {
-        UIView.animateWithDuration(animationDuration) {
-            if self.selected {
-                self.transform = CGAffineTransformMakeRotation(CGFloat(-M_PI_2))
+        UIView.animate(withDuration: animationDuration) {
+            if self.isSelected {
+                self.transform = CGAffineTransform(rotationAngle: CGFloat(-M_PI_2))
                 for index in 0..<itemsCount {
                     let lineLayer = self.lineLayers[index]
                     lineLayer.strokeEnd = gridStrokeEnd
                     lineLayer.lineWidth = gridLineWidth
                 }
             } else {
-                self.transform = CGAffineTransformIdentity
+                self.transform = CGAffineTransform.identity
                for index in 0..<itemsCount {
                     let lineLayer = self.lineLayers[index]
                     lineLayer.strokeEnd = listStrokeEnd
@@ -81,8 +81,8 @@ public class RotationButton: UIButton {
             
             for index in 0..<itemsCount {
                 let lineLayer = self.lineLayers[index]
-                lineLayer.addAnimation(strokeEndAnimation, forKey: nil)
-                lineLayer.addAnimation(lineWidthAnimation, forKey: nil)
+                lineLayer.add(strokeEndAnimation, forKey: nil)
+                lineLayer.add(lineWidthAnimation, forKey: nil)
             }
         }
     }
@@ -101,10 +101,10 @@ public class RotationButton: UIButton {
                 offsetX = bounds.width
             }
             path = UIBezierPath()
-            path.moveToPoint(CGPointMake(offsetX, bounds.height * heightDelta))
-            path.addLineToPoint(CGPointMake(bounds.width / 2, bounds.height * heightDelta))
-            lineLayer.path = path.CGPath
-            lineLayer.strokeColor = lineColor.CGColor
+            path.move(to: CGPoint(x: offsetX, y: bounds.height * heightDelta))
+            path.addLine(to: CGPoint(x: bounds.width / 2, y: bounds.height * heightDelta))
+            lineLayer.path = path.cgPath
+            lineLayer.strokeColor = lineColor.cgColor
             lineLayer.lineWidth = listLineWidth
         }
     }

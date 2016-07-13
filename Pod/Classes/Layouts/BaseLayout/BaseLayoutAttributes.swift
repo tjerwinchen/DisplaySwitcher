@@ -11,11 +11,11 @@ import UIKit
 public class BaseLayoutAttributes: UICollectionViewLayoutAttributes {
     
    public var transitionProgress: CGFloat = 0.0
-   public var nextLayoutCellFrame = CGRectZero
-   public var layoutState: CollectionViewLayoutState = .ListLayoutState
+   public var nextLayoutCellFrame = CGRect.zero
+   public var layoutState: CollectionViewLayoutState = .listLayoutState
     
-    override public func copyWithZone(zone: NSZone) -> AnyObject {
-        let copy = super.copyWithZone(zone) as! BaseLayoutAttributes
+    override public func copy(with zone: NSZone?) -> AnyObject {
+        let copy = super.copy(with: zone) as! BaseLayoutAttributes
         copy.transitionProgress = transitionProgress
         copy.nextLayoutCellFrame = nextLayoutCellFrame
         copy.layoutState = layoutState
@@ -23,7 +23,7 @@ public class BaseLayoutAttributes: UICollectionViewLayoutAttributes {
         return copy
     }
     
-    override public func isEqual(object: AnyObject?) -> Bool {
+    override public func isEqual(_ object: AnyObject?) -> Bool {
         if let attributes = object as? BaseLayoutAttributes {
             if attributes.transitionProgress == transitionProgress && nextLayoutCellFrame == nextLayoutCellFrame  && layoutState == layoutState {
                 return super.isEqual(object)

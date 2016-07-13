@@ -36,7 +36,7 @@ class UserCollectionViewCell: UICollectionViewCell, CellInterface {
     private var avatarGridLayoutSize: CGFloat = 0.0
     private var initialLabelsLeadingConstraintValue: CGFloat = 0.0
     
-    func bind(user: User) {
+    func bind(_ user: User) {
         avatarImageView.image = user.avatar
         nameListLabel.text = user.name.localized + " " + user.surname.localized
         nameGridLabel.text = nameListLabel.text
@@ -46,7 +46,7 @@ class UserCollectionViewCell: UICollectionViewCell, CellInterface {
         statisticLabel.text = userPostsString + userCommentsString + userLikesString
     }
     
-    func setupGridLayoutConstraints(transitionProgress: CGFloat, cellWidth: CGFloat) {
+    func setupGridLayoutConstraints(_ transitionProgress: CGFloat, cellWidth: CGFloat) {
         avatarImageViewHeightConstraint.constant = ceil((cellWidth - avatarListLayoutSize) * transitionProgress + avatarListLayoutSize)
         avatarImageViewWidthConstraint.constant = ceil(avatarImageViewHeightConstraint.constant)
         nameListLabelLeadingConstraint.constant = -avatarImageViewWidthConstraint.constant * transitionProgress + initialLabelsLeadingConstraintValue
@@ -56,7 +56,7 @@ class UserCollectionViewCell: UICollectionViewCell, CellInterface {
         statisticLabel.alpha = 1 - transitionProgress
     }
     
-    func setupListLayoutConstraints(transitionProgress: CGFloat, cellWidth: CGFloat) {
+    func setupListLayoutConstraints(_ transitionProgress: CGFloat, cellWidth: CGFloat) {
         avatarImageViewHeightConstraint.constant = ceil(avatarGridLayoutSize - (avatarGridLayoutSize - avatarListLayoutSize) * transitionProgress)
         avatarImageViewWidthConstraint.constant = avatarImageViewHeightConstraint.constant 
         nameListLabelLeadingConstraint.constant = avatarImageViewWidthConstraint.constant * transitionProgress + (initialLabelsLeadingConstraintValue - avatarImageViewHeightConstraint.constant)
@@ -66,15 +66,15 @@ class UserCollectionViewCell: UICollectionViewCell, CellInterface {
         statisticLabel.alpha = transitionProgress
     }
     
-    override func applyLayoutAttributes(layoutAttributes: UICollectionViewLayoutAttributes) {
-        super.applyLayoutAttributes(layoutAttributes)
+    override func apply(_ layoutAttributes: UICollectionViewLayoutAttributes) {
+        super.apply(layoutAttributes)
         if let attributes = layoutAttributes as? BaseLayoutAttributes {
             if attributes.transitionProgress > 0 {
-                if attributes.layoutState == .GridLayoutState {
-                    setupGridLayoutConstraints(attributes.transitionProgress, cellWidth: CGRectGetWidth(attributes.nextLayoutCellFrame))
-                    avatarGridLayoutSize = CGRectGetWidth(attributes.nextLayoutCellFrame)
+                if attributes.layoutState == .gridLayoutState {
+                    setupGridLayoutConstraints(attributes.transitionProgress, cellWidth: attributes.nextLayoutCellFrame.width)
+                    avatarGridLayoutSize = attributes.nextLayoutCellFrame.width
                 } else {
-                    setupListLayoutConstraints(attributes.transitionProgress, cellWidth: CGRectGetWidth(attributes.nextLayoutCellFrame))
+                    setupListLayoutConstraints(attributes.transitionProgress, cellWidth: attributes.nextLayoutCellFrame.width)
                 }
             }
         }
